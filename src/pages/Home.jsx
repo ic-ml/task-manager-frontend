@@ -1,7 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import Header from "../components/layout/Header";
-import TaskSwitcher from "../components/TaskSwitcher";
 import TaskCard from "../components/TaskCard";
 import { useTasks } from "../context/TaskContext";
 import EmptyState from "../components/EmptyState";
@@ -11,14 +10,16 @@ import { DndContext, useDroppable } from "@dnd-kit/core";
 const DroppableColumn = ({ id, children }) => {
   const { setNodeRef } = useDroppable({ id });
 
-  return (
-    <div ref={setNodeRef} className="space-y-4 min-h-[100px]">
-      {children}
-    </div>
-  );
+ return (
+  <div
+    ref={setNodeRef}
+    className="min-h-[200px] rounded-xl border border-dashed border-gray-300 p-3"
+  >
+    {children}
+  </div>
+);
 };
 const Home = () => {
-  const [activeTab, setActiveTab] = useState("ACTIVE");
   const { tasks, loading, updateTask } = useTasks();
 const [search, setSearch] = useState("");
 const [priority, setPriority] = useState("");
@@ -96,10 +97,7 @@ const [sort, setSort] = useState("");
     <div className="p-6 pb-24">
       <Header />
       <h1 className="text-lg font-bold mb-4">My Tasks</h1>
-      <TaskSwitcher
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+     
       <TaskFilters
         search={search}
         setSearch={setSearch}
@@ -108,31 +106,45 @@ const [sort, setSort] = useState("");
         sort={sort}
         setSort={setSort}
       />
-      <div className="space-y-4">
+     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
 
-  {activeTab === "ACTIVE" && (
+  {/* ACTIVE */}
+  <div>
+    <h2 className="text-sm font-semibold mb-3 text-gray-500">
+      Active
+    </h2>
+
     <DroppableColumn id="ACTIVE">
+
       {activeTasks.length === 0 ? (
-        <EmptyState text="No tasks here yet" />
+        <EmptyState text="No active tasks" />
       ) : (
         activeTasks.map((task) => (
           <TaskCard key={task._id} task={task} />
         ))
       )}
-    </DroppableColumn>
-  )}
 
-  {activeTab === "COMPLETED" && (
+    </DroppableColumn>
+  </div>
+
+  {/* COMPLETED */}
+  <div>
+    <h2 className="text-sm font-semibold mb-3 text-gray-500">
+      Completed
+    </h2>
+
     <DroppableColumn id="COMPLETED">
+
       {completedTasks.length === 0 ? (
-        <EmptyState text="No tasks here yet" />
+        <EmptyState text="No completed tasks" />
       ) : (
         completedTasks.map((task) => (
           <TaskCard key={task._id} task={task} />
         ))
       )}
+
     </DroppableColumn>
-  )}
+  </div>
 
 </div>
     </div>
