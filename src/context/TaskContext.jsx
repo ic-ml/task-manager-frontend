@@ -34,10 +34,16 @@ export const TaskProvider = ({ children }) => {
       prev.map((t) => (t._id === id ? updated : t))
     );
   };
+const updateTask = async (id, data) => {
+  const updated = await updateTaskAPI(id, data);
 
+  setTasks((prev) =>
+    prev.map((t) => (t._id === id ? updated : t))
+  );
+};
   return (
     <TaskContext.Provider
-      value={{ tasks, addTask, toggleTaskStatus, loading }}
+      value={{ tasks, addTask, toggleTaskStatus, updateTask, loading }}
     >
       {children}
     </TaskContext.Provider>

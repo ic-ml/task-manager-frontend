@@ -12,17 +12,40 @@ const DroppableColumn = ({ id, children }) => {
   const { setNodeRef } = useDroppable({ id });
 
   return (
-    <div ref={setNodeRef} className="min-h-[120px] space-y-4">
+    <div ref={setNodeRef} className="space-y-4 min-h-[100px]">
       {children}
     </div>
   );
 };
 const Home = () => {
   const [activeTab, setActiveTab] = useState("ACTIVE");
-const { tasks, loading, updateTask } = useTasks();
+  const { tasks, loading, updateTask } = useTasks();
 const [search, setSearch] = useState("");
 const [priority, setPriority] = useState("");
 const [sort, setSort] = useState("");
+
+
+    const handleDragEnd = async (event) => {
+      const { active, over } = event;
+
+      if (!over) return;
+
+      const taskId = active.id;
+      const newStatus = over.id;
+
+      if (newStatus !== "ACTIVE" && newStatus !== "COMPLETED") return;
+
+      const task = tasks.find((t) => t._id === taskId);
+      if (!task) return;
+
+      if (task.status === newStatus) return;
+
+      try {
+        await updateTask(taskId, { status: newStatus });
+      } catch (err) {
+        console.error(err);
+      }
+    };
     if (loading) {
     return (
       <PageWrapper>
@@ -32,28 +55,8 @@ const [sort, setSort] = useState("");
       </PageWrapper>
     );
   }
-  const handleDragEnd = async (event) => {
-    const { active, over } = event;
 
-    if (!over) return;
-
-    const taskId = active.id;
-    const newStatus = over.id;
-
-    if (newStatus !== "ACTIVE" && newStatus !== "COMPLETED") return;
-
-    const task = tasks.find((t) => t._id === taskId);
-    if (!task) return;
-
-    if (task.status === newStatus) return;
-
-    try {
-      await updateTask(taskId, { status: newStatus });
-    } catch (err) {
-      console.error("Drag update failed", err);
-    }
-  };
-let filteredTasks = tasks;
+  let filteredTasks = tasks;
 
   if (search) {
     filteredTasks = filteredTasks.filter((task) =>
@@ -71,22 +74,25 @@ let filteredTasks = tasks;
     );
   }
 
+
+
   if (sort === "date-desc") {
     filteredTasks = [...filteredTasks].sort(
       (a, b) => new Date(b.dueDate) - new Date(a.dueDate)
     );
   }
-  const activeTasks = filteredTasks.filter(
-  (task) => task.status === "ACTIVE"
-);
 
-const completedTasks = filteredTasks.filter(
-  (task) => task.status === "COMPLETED"
-);
+    
+    const activeTasks = filteredTasks.filter(
+      (task) => task.status === "ACTIVE"
+    );
+
+    const completedTasks = filteredTasks.filter(
+      (task) => task.status === "COMPLETED"
+    );
   return (
     <PageWrapper>
-        <DndContext onDragEnd={handleDragEnd}>
-
+      <DndContext onDragEnd={handleDragEnd}>
     <div className="p-6 pb-24">
       <Header />
       <h1 className="text-lg font-bold mb-4">My Tasks</h1>
@@ -103,17 +109,34 @@ const completedTasks = filteredTasks.filter(
         setSort={setSort}
       />
       <div className="space-y-4">
-        {filteredTasks.length === 0 ? (
-           <EmptyState text="No tasks here yet" />
 
-        ) : (
-          filteredTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))
-        )}
-      </div>
+  {activeTab === "ACTIVE" && (
+    <DroppableColumn id="ACTIVE">
+      {activeTasks.length === 0 ? (
+        <EmptyState text="No tasks here yet" />
+      ) : (
+        activeTasks.map((task) => (
+          <TaskCard key={task._id} task={task} />
+        ))
+      )}
+    </DroppableColumn>
+  )}
+
+  {activeTab === "COMPLETED" && (
+    <DroppableColumn id="COMPLETED">
+      {completedTasks.length === 0 ? (
+        <EmptyState text="No tasks here yet" />
+      ) : (
+        completedTasks.map((task) => (
+          <TaskCard key={task._id} task={task} />
+        ))
+      )}
+    </DroppableColumn>
+  )}
+
+</div>
     </div>
-     </DndContext>
+    </DndContext>
     </PageWrapper>
   );
 };

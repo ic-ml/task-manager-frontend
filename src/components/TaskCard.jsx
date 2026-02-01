@@ -1,4 +1,6 @@
 import { useTasks } from "../context/TaskContext";
+import { useDraggable } from "@dnd-kit/core";
+
 const priorityColors = {
   High: "border-l-4 border-red-500",
   Medium: "border-l-4 border-yellow-400",
@@ -6,9 +8,21 @@ const priorityColors = {
 };
 const TaskCard = ({ task }) => {
   const { toggleTaskStatus } = useTasks();
+const { attributes, listeners, setNodeRef, transform } =
+  useDraggable({
+    id: task._id,
+  });
 
+const style = transform
+  ? {
+      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    }
+  : undefined;
   return (
-    <div
+    <div ref={setNodeRef}
+  style={style}
+  {...listeners}
+  {...attributes}
       
       className={`shadow-xl bg-white p-4 rounded-xl shadow-sm cursor-pointer ${priorityColors[task.priority]}`}
     >
