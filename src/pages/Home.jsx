@@ -24,7 +24,7 @@ const [sort, setSort] = useState("");
     );
   }
 
-  const filteredTasks = tasks.filter(
+  let filteredTasks = tasks.filter(
     (task) => task.status === activeTab
   );
   if (search) {
