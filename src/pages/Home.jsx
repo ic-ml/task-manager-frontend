@@ -6,11 +6,14 @@ import TaskCard from "../components/TaskCard";
 import { useTasks } from "../context/TaskContext";
 import EmptyState from "../components/EmptyState";
 import PageWrapper from "../components/PageWrapper";
+import TaskFilters from "../components/TaskFilters";
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState("ACTIVE");
   const { tasks, loading } = useTasks();
-
+const [search, setSearch] = useState("");
+const [priority, setPriority] = useState("");
+const [sort, setSort] = useState("");
     if (loading) {
     return (
       <PageWrapper>
@@ -24,7 +27,27 @@ const Home = () => {
   const filteredTasks = tasks.filter(
     (task) => task.status === activeTab
   );
+  if (search) {
+    filteredTasks = filteredTasks.filter((task) =>
+      task.title.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+  if (priority) {
+    filteredTasks = filteredTasks.filter(
+      (task) => task.priority === priority
+    );
+  }
+  if (sort === "date-asc") {
+    filteredTasks = [...filteredTasks].sort(
+      (a, b) => new Date(a.dueDate) - new Date(b.dueDate)
+    );
+  }
 
+  if (sort === "date-desc") {
+    filteredTasks = [...filteredTasks].sort(
+      (a, b) => new Date(b.dueDate) - new Date(a.dueDate)
+    );
+  }
   return (
     <PageWrapper>
     <div className="p-6 pb-24">
@@ -34,7 +57,14 @@ const Home = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
-
+      <TaskFilters
+        search={search}
+        setSearch={setSearch}
+        priority={priority}
+        setPriority={setPriority}
+        sort={sort}
+        setSort={setSort}
+      />
       <div className="space-y-4">
         {filteredTasks.length === 0 ? (
            <EmptyState text="No tasks here yet" />
