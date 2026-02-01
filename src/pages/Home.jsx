@@ -7,10 +7,19 @@ import { useTasks } from "../context/TaskContext";
 import EmptyState from "../components/EmptyState";
 import PageWrapper from "../components/PageWrapper";
 import TaskFilters from "../components/TaskFilters";
+import { DndContext, useDroppable } from "@dnd-kit/core";
+const DroppableColumn = ({ id, children }) => {
+  const { setNodeRef } = useDroppable({ id });
 
+  return (
+    <div ref={setNodeRef} className="min-h-[120px] space-y-4">
+      {children}
+    </div>
+  );
+};
 const Home = () => {
   const [activeTab, setActiveTab] = useState("ACTIVE");
-  const { tasks, loading } = useTasks();
+const { tasks, loading, updateTask } = useTasks();
 const [search, setSearch] = useState("");
 const [priority, setPriority] = useState("");
 const [sort, setSort] = useState("");
@@ -23,10 +32,29 @@ const [sort, setSort] = useState("");
       </PageWrapper>
     );
   }
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
 
-  let filteredTasks = tasks.filter(
-    (task) => task.status === activeTab
-  );
+    if (!over) return;
+
+    const taskId = active.id;
+    const newStatus = over.id;
+
+    if (newStatus !== "ACTIVE" && newStatus !== "COMPLETED") return;
+
+    const task = tasks.find((t) => t._id === taskId);
+    if (!task) return;
+
+    if (task.status === newStatus) return;
+
+    try {
+      await updateTask(taskId, { status: newStatus });
+    } catch (err) {
+      console.error("Drag update failed", err);
+    }
+  };
+let filteredTasks = tasks;
+
   if (search) {
     filteredTasks = filteredTasks.filter((task) =>
       task.title.toLowerCase().includes(search.toLowerCase())
@@ -48,8 +76,17 @@ const [sort, setSort] = useState("");
       (a, b) => new Date(b.dueDate) - new Date(a.dueDate)
     );
   }
+  const activeTasks = filteredTasks.filter(
+  (task) => task.status === "ACTIVE"
+);
+
+const completedTasks = filteredTasks.filter(
+  (task) => task.status === "COMPLETED"
+);
   return (
     <PageWrapper>
+        <DndContext onDragEnd={handleDragEnd}>
+
     <div className="p-6 pb-24">
       <Header />
       <h1 className="text-lg font-bold mb-4">My Tasks</h1>
@@ -76,6 +113,7 @@ const [sort, setSort] = useState("");
         )}
       </div>
     </div>
+     </DndContext>
     </PageWrapper>
   );
 };
