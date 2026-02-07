@@ -6,7 +6,7 @@ import { useTasks } from "../context/TaskContext";
 import EmptyState from "../components/EmptyState";
 import PageWrapper from "../components/PageWrapper";
 import TaskFilters from "../components/TaskFilters";
-import { DndContext, PointerSensor,useSensor,useSensors,useDroppable } from "@dnd-kit/core";
+import { DndContext, PointerSensor,  TouchSensor,useSensor,useSensors,useDroppable } from "@dnd-kit/core";
 const DroppableColumn = ({ id, children }) => {
   const { setNodeRef } = useDroppable({ id });
 
@@ -25,10 +25,16 @@ const [search, setSearch] = useState("");
 const [priority, setPriority] = useState("");
 const [sort, setSort] = useState("");
 
- const sensors = useSensors(
+const sensors = useSensors(
   useSensor(PointerSensor, {
     activationConstraint: {
       distance: 8,
+    },
+  }),
+  useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 200,
+      tolerance: 5,
     },
   })
 );
