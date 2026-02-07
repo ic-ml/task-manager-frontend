@@ -6,7 +6,7 @@ import { useTasks } from "../context/TaskContext";
 import EmptyState from "../components/EmptyState";
 import PageWrapper from "../components/PageWrapper";
 import TaskFilters from "../components/TaskFilters";
-import { DndContext, useDroppable } from "@dnd-kit/core";
+import { DndContext, PointerSensor,useSensor,useSensors,useDroppable } from "@dnd-kit/core";
 const DroppableColumn = ({ id, children }) => {
   const { setNodeRef } = useDroppable({ id });
 
@@ -25,7 +25,13 @@ const [search, setSearch] = useState("");
 const [priority, setPriority] = useState("");
 const [sort, setSort] = useState("");
 
-
+ const sensors = useSensors(
+  useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 8,
+    },
+  })
+);
     const handleDragEnd = async (event) => {
       const { active, over } = event;
 
@@ -91,10 +97,11 @@ const [sort, setSort] = useState("");
     const completedTasks = filteredTasks.filter(
       (task) => task.status === "COMPLETED"
     );
+   
   return (
     <PageWrapper>
-      <DndContext onDragEnd={handleDragEnd}>
-    <div className="p-6 pb-24">
+<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <div className="p-6 pb-24">
       <Header />
       <h1 className="text-lg font-bold mb-4">My Tasks</h1>
      

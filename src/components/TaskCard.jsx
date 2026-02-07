@@ -24,7 +24,7 @@ const style = transform
   {...listeners}
   {...attributes}
       
-      className={`shadow-xl bg-white p-4 rounded-xl shadow-sm cursor-pointer ${priorityColors[task.priority]}`}
+      className={`shadow-xl mb-4 bg-white p-4 rounded-xl shadow-sm cursor-pointer ${priorityColors[task.priority]}`}
     >
       <h3
         className={`font-semibold ${
