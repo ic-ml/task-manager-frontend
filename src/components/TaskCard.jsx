@@ -1,5 +1,6 @@
 import { useTasks } from "../context/TaskContext";
 import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 
 const priorityColors = {
   High: "border-l-4 border-red-500",
@@ -15,14 +16,13 @@ const { attributes, listeners, setNodeRef, transform } =
 
 const style = transform
   ? {
-      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  transform: CSS.Translate.toString(transform),
     }
   : undefined;
   return (
     <div ref={setNodeRef}
   style={style}
-  {...listeners}
-  {...attributes}
+ 
       
       className={`shadow-xl mb-4 bg-white p-4 rounded-xl shadow-sm cursor-pointer ${priorityColors[task.priority]}`}
     >
@@ -39,11 +39,18 @@ const style = transform
       <p className="text-sm text-gray-500">
         {task.dueDate} • {task.priority}
       </p>
-      <div className="my-3 font-bold" onClick={() => toggleTaskStatus(task._id)}>{`${
+      <div className="my-3 font-bold" >{`${
           task.status === "COMPLETED"
             ? "Return to Active"
             : "Mark as done"
         }`}</div>
+        <button
+  className="cursor-grab active:cursor-grabbing p-1 text-gray-400"
+  {...listeners}
+  {...attributes}
+>
+  ☰
+</button>
     </div>
   );
 };
